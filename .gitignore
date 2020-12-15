@@ -1,0 +1,6 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+Spring_Training.iml
+lib/
+target/
+.idea/vcs.xml
