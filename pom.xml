@@ -16,7 +16,6 @@
         <project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-
         <java-version>1.8</java-version>
         <org.springframework-version>5.1.5.RELEASE</org.springframework-version>
     </properties>
@@ -47,7 +46,33 @@
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>alpha</id>
+            <properties>
+                <env>alpha</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>real</id>
+            <properties>
+                <env>real</env>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <filters>
+            <filter>src/main/resources/profile/${env}/common.properties</filter>
+        </filters>
+
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
