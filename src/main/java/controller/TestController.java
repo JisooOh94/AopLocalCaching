@@ -33,4 +33,12 @@ public class TestController {
 		logger.debug("Test logging");
 		return "index";
 	}
+
+	@GetMapping("/log4j2/logLevel")
+	public void runtimeLogLevelChangeTest() {
+		logger.error("error log");
+		logger.warn("warn log");
+		logger.info("info log");
+		logger.debug("debug log");
+	}
 }
