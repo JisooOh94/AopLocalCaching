@@ -1,0 +1,4 @@
+CREATE TABLE user_info (
+  user_id VARCHAR(10) PRIMARY KEY,
+  user_no INTEGER IDENTITY
+);
