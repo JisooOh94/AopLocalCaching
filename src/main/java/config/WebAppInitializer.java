@@ -10,6 +10,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 public class WebAppInitializer implements WebApplicationInitializer {
+	private static final String ROOT = "/";
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		registerApplicationContext(servletContext);
@@ -27,8 +28,8 @@ public class WebAppInitializer implements WebApplicationInitializer {
 		AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
 		webContext.register(ServletContextConfig.class);
 
-		ServletRegistration.Dynamic dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(webContext));
+		ServletRegistration.Dynamic dispatcher = servletContext.addServlet("DefaultDispatcherServlet", new DispatcherServlet(webContext));
 		dispatcher.setLoadOnStartup(1);
-		dispatcher.addMapping("/");
+		dispatcher.addMapping(ROOT);
 	}
 }
