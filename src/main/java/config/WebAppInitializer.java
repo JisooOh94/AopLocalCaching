@@ -12,15 +12,18 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class WebAppInitializer implements WebApplicationInitializer {
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		registerApplicationContext(servletContext);
 		registerDispatcherServlet(servletContext);
 	}
 
-	private void registerDispatcherServlet(ServletContext servletContext) {
+	private void registerApplicationContext(ServletContext servletContext) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(ApplicationContextConfig.class);
 
 		servletContext.addListener(new ContextLoaderListener(applicationContext));
+	}
 
+	private void registerDispatcherServlet(ServletContext servletContext) {
 		AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
 		webContext.register(ServletContextConfig.class);
 
