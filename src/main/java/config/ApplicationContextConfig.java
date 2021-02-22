@@ -13,6 +13,9 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 @Configuration
 public class ApplicationContextConfig {
 	private static final String PROPERTIES_PATH = "config.properties";
+	private static final String DDL_PATH = "classpath:sql\\schema.sql";
+	private static final String DML_PATH = "classpath:sql\\data.sql";
+
 	@Bean
 	public PropertySourcesPlaceholderConfigurer properties() {
 		PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
@@ -23,7 +26,7 @@ public class ApplicationContextConfig {
 	@Bean
 	public EmbeddedDatabase embeddedDatabase() {
 		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-		EmbeddedDatabase embeddedDatabase = builder.setType(HSQL).addScripts("classpath:sql\\schema.sql", "classpath:sql\\data.sql").build();
+		EmbeddedDatabase embeddedDatabase = builder.setType(HSQL).addScripts(DDL_PATH, DML_PATH).build();
 		return embeddedDatabase;
 	}
 
