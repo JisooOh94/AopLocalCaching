@@ -1,4 +1,6 @@
 CREATE TABLE user_info (
-  user_id VARCHAR(10) PRIMARY KEY,
-  user_no INTEGER IDENTITY
+  user_no INTEGER IDENTITY PRIMARY KEY,
+  user_id VARCHAR(10) NOT NULL UNIQUE,
+  user_age INTEGER NOT NULL,
+  user_name VARCHAR(4) NOT NULL
 );

@@ -9,6 +9,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import bo.UserInfoBo;
+import bo.impl.NamedParameterRepository;
+import bo.impl.SimpleRepository;
+import dao.UserInfoDao;
 
 @Configuration
 public class ApplicationContextConfig {
@@ -16,6 +20,19 @@ public class ApplicationContextConfig {
 	private static final String DDL_PATH = "classpath:sql\\schema.sql";
 	private static final String DML_PATH = "classpath:sql\\data.sql";
 
+	//BO===================================================================================================
+	@Bean
+	public UserInfoBo userInfoBo() {
+		return new UserInfoBo(userInfoDao());
+	}
+
+	//Dao===================================================================================================
+	@Bean
+	public UserInfoDao userInfoDao() {
+		return new UserInfoDao(namedParameterRepository());
+	}
+
+	//Properties===================================================================================================
 	@Bean
 	public PropertySourcesPlaceholderConfigurer properties() {
 		PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
@@ -23,6 +40,7 @@ public class ApplicationContextConfig {
 		return properties;
 	}
 
+	//DB===================================================================================================
 	@Bean
 	public EmbeddedDatabase embeddedDatabase() {
 		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
@@ -32,8 +50,16 @@ public class ApplicationContextConfig {
 
 	@Bean
 	public JdbcTemplate jdbcTemplate() {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate();
-		jdbcTemplate.setDataSource(embeddedDatabase());
-		return jdbcTemplate;
+		return new JdbcTemplate(embeddedDatabase());
+	}
+
+	@Bean
+	public SimpleRepository simpleRepository() {
+		return new SimpleRepository(jdbcTemplate());
+	}
+
+	@Bean
+	public NamedParameterRepository namedParameterRepository() {
+		return new NamedParameterRepository(jdbcTemplate());
 	}
 }
