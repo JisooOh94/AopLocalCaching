@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bo.Repository;
+import repository.Repository;
 import model.UserInfo;
 
 /**

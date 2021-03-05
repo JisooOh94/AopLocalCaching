@@ -10,9 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import bo.UserInfoBo;
-import bo.impl.NamedParameterRepository;
-import bo.impl.SimpleRepository;
 import dao.UserInfoDao;
+import repository.impl.*;
 
 @Configuration
 public class ApplicationContextConfig {

@@ -1,5 +1,7 @@
 package config;
 
+import static constants.CommonConstants.*;
+
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -14,7 +16,6 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
 public class WebAppInitializer implements WebApplicationInitializer {
-	private static final String ROOT = "/";
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		registerApplicationContext(servletContext);
@@ -41,7 +42,7 @@ public class WebAppInitializer implements WebApplicationInitializer {
 	private void registerCharacterEncodingFilter(ServletContext servletContext) {
 		FilterRegistration.Dynamic characterEncodingFilter = servletContext.addFilter("characterEncodingFilter", new CharacterEncodingFilter());
 		characterEncodingFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-		characterEncodingFilter.setInitParameter("encoding", "UTF-8");
+		characterEncodingFilter.setInitParameter("encoding", UTF_8);
 		characterEncodingFilter.setInitParameter("forceEncoding", "true");
 	}
 }

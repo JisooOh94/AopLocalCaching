@@ -17,6 +17,7 @@ import controller.TestController;
 public class ServletContextConfig {
 	private static final String PROPERTY_VIEW_PREFIX_KEY = "view.prefix";
 	private static final String PROPERTY_VIEW_SUFFIX_KEY = "view.suffix";
+	private static final String CONFIG_PATH = "config.properties";
 	private final Environment environment;
 
 	@Autowired
@@ -27,7 +28,7 @@ public class ServletContextConfig {
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 		PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-		configurer.setLocation(new ClassPathResource("config.properties"));
+		configurer.setLocation(new ClassPathResource(CONFIG_PATH));
 		return configurer;
 	}
 
