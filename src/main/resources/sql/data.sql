@@ -1,0 +1,1 @@
+INSERT INTO user_info(user_id, user_age, user_name) VALUES ('foo', 20, '푸'), ('bar', 20, '바');
