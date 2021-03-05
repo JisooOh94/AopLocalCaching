@@ -1,4 +1,4 @@
-package bo.impl;
+package repository.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import bo.Repository;
+import repository.Repository;
 
 public class NamedParameterRepository implements Repository {
 	private final NamedParameterJdbcTemplate jdbcTemplate;

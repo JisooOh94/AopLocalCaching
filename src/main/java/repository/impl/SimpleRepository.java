@@ -1,11 +1,11 @@
-package bo.impl;
+package repository.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import bo.Repository;
+import repository.Repository;
 
 public class SimpleRepository implements Repository {
 	private final JdbcTemplate jdbcTemplate;
