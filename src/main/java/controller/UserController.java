@@ -23,8 +23,28 @@ public class UserController {
 
 	@GetMapping("/info")
 	public String getUserInfo(@RequestParam String userId, ModelMap model) {
-		List<UserInfo> userInfoList = userInfoBo.getUserInfo(userId);
-		model.addAttribute("userInfoList", userInfoList);
+		UserInfo userInfo = userInfoBo.getUserInfo(userId);
+		userInfo = userInfoBo.getUserInfo(userId);
+		model.addAttribute("key", "UserInfo");
+		model.addAttribute("value", userInfo);
+		return "userInfo";
+	}
+
+	@GetMapping("/name")
+	public String getUserName(@RequestParam String userId, ModelMap model) {
+		String userName = userInfoBo.getUserName(userId);
+		userName = userInfoBo.getUserName(userId);
+		model.addAttribute("key", "UserName");
+		model.addAttribute("value", userName);
+		return "userInfo";
+	}
+
+	@GetMapping("/age")
+	public String getUserAge(@RequestParam String userId, ModelMap model) {
+		int userAge = userInfoBo.getUserAge(userId);
+		userAge = userInfoBo.getUserAge(userId);
+		model.addAttribute("key", "UserAge");
+		model.addAttribute("value", userAge);
 		return "userInfo";
 	}
 }

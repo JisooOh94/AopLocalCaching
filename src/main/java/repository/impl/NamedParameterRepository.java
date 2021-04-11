@@ -16,7 +16,17 @@ public class NamedParameterRepository implements Repository {
 	}
 
 	@Override
-	public <T> List<T> select(String query, Map<String, Object> param, RowMapper<T> rowMapper) {
+	public <T> List<T> selectList(String query, Map<String, Object> param, RowMapper<T> rowMapper) {
 		return jdbcTemplate.query(query, param, rowMapper);
+	}
+
+	@Override
+	public <T> T selectOne(String query, Map<String, Object> param, RowMapper<T> rowMapper) {
+		return jdbcTemplate.queryForObject(query, param, rowMapper);
+	}
+
+	@Override
+	public <T> T selectOne(String query, Map<String, Object> param, Class type) {
+		return (T)jdbcTemplate.queryForObject(query, param, type);
 	}
 }
