@@ -1,7 +1,8 @@
 package bo;
 
-import java.util.List;
+import static cache.type.LocalCacheType.*;
 
+import cache.LocalCacheable;
 import dao.UserInfoDao;
 import model.UserInfo;
 
@@ -12,7 +13,18 @@ public class UserInfoBo {
 		this.userInfoDao = userInfoDao;
 	}
 
-	public List<UserInfo> getUserInfo(String userId) {
+	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userInfo")
+	public UserInfo getUserInfo(String userId) {
 		return userInfoDao.getUserInfo(userId);
+	}
+
+	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 	10, keyFormat = "{}-{}", keyPrefix = "userName")
+	public String getUserName(String userId) {
+		return userInfoDao.getUserName(userId);
+	}
+
+	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userAge")
+	public int getUserAge(String userId) {
+		return userInfoDao.getUserAge(userId);
 	}
 }

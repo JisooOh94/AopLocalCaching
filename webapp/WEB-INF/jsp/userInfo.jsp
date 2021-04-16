@@ -9,8 +9,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
   <body>
-  <c:forEach var="userInfo" items="${userInfoList}">
-    <p>userName : ${userInfo.getUserName()}</p>
-  </c:forEach>
+  <p>${key} : ${value}</p>
   </body>
 </html>

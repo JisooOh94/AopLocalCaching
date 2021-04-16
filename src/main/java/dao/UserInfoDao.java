@@ -1,11 +1,11 @@
 package dao;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
 
-import repository.Repository;
 import model.UserInfo;
+import repository.Repository;
 
 /**
  * @author jisoooh
@@ -17,17 +17,36 @@ public class UserInfoDao {
 	private static final String USER_NAME = "user_name";
 
 	private final Repository repository;
+	private DataSource dataSource;
 
 	public UserInfoDao(Repository repository) {
 		this.repository = repository;
 	}
 
-	public List<UserInfo> getUserInfo(String userId) {
+	public UserInfo getUserInfo(String userId) {
 		String query = "SELECT * FROM user_info WHERE user_id = :userId";
 
 		Map<String, Object> param = new HashMap<>();
 		param.put("userId", userId);
 
-		return repository.select(query, param, (row, idx) -> new UserInfo(row.getInt(USER_NO), row.getString(USER_ID), row.getInt(USER_AGE), row.getString(USER_NAME)));
+		return repository.selectOne(query, param, (row, idx) -> new UserInfo(row.getInt(USER_NO), row.getString(USER_ID), row.getInt(USER_AGE), row.getString(USER_NAME)));
+	}
+
+	public String getUserName(String userId) {
+		String query = "SELECT user_name FROM user_info WHERE user_id = :userId";
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("userId", userId);
+
+		return repository.selectOne(query, param, String.class);
+	}
+
+	public int getUserAge(String userId) {
+		String query = "SELECT user_age FROM user_info WHERE user_id = :userId";
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("userId", userId);
+
+		return repository.selectOne(query, param, Integer.class);
 	}
 }
