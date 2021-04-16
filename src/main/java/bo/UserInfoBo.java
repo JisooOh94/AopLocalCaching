@@ -18,7 +18,7 @@ public class UserInfoBo {
 		return userInfoDao.getUserInfo(userId);
 	}
 
-	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 	10, keyFormat = "{}-{}", keyPrefix = "userName")
+	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userName")
 	public String getUserName(String userId) {
 		return userInfoDao.getUserName(userId);
 	}
