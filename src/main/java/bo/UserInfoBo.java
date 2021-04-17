@@ -2,6 +2,7 @@ package bo;
 
 import static cache.type.LocalCacheType.*;
 
+import cache.CacheKey;
 import cache.LocalCacheable;
 import dao.UserInfoDao;
 import model.UserInfo;
@@ -14,7 +15,7 @@ public class UserInfoBo {
 	}
 
 	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userInfo")
-	public UserInfo getUserInfo(String userId) {
+	public UserInfo getUserInfo(@CacheKey String userId) {
 		return userInfoDao.getUserInfo(userId);
 	}
 
