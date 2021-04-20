@@ -30,6 +30,7 @@ public class ThreadLocalCacheInterceptor {
 	@Pointcut("@annotation(cache.LocalCacheable)")
 	public void annotion(){}
 
+	@SuppressWarnings("unchecked")
 	@Around("annotion() && @annotation(target)")
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
