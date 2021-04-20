@@ -25,32 +25,33 @@ import util.StringUtil;
 public class ThreadLocalCacheInterceptor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final ThreadLocal<EnumMap<LocalCacheType,  CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
+	private final ThreadLocal<EnumMap<LocalCacheType, CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
 
 	@Pointcut("@annotation(cache.LocalCacheable)")
-	public void annotion(){}
+	public void annotion() {
+	}
 
 	@SuppressWarnings("unchecked")
 	@Around("annotion() && @annotation(target)")
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
-		if(cacheStorageCollection == null) {
+		if (cacheStorageCollection == null) {
 			cacheStorageCollection = new EnumMap<>(LocalCacheType.class);
 			threadLocalCache.set(cacheStorageCollection);
 		}
 
 		CacheStorage<T> cacheStorage = cacheStorageCollection.get(target.type());
-		if(cacheStorage == null) {
+		if (cacheStorage == null) {
 			cacheStorage = new MapCacheStorage<>(target.maxSize());
 			cacheStorageCollection.put(target.type(), cacheStorage);
 		}
 
-		String key = generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature)invoker.getSignature()).getMethod().getParameterAnnotations());
+		String key = generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
 
 		T cachedValue = cacheStorage.getCache(key);
-		if(cachedValue == null) {
+		if (cachedValue == null) {
 			logger.info("# get from DB. key : {}", key);
-			cachedValue = (T)invoker.proceed();
+			cachedValue = (T) invoker.proceed();
 			cacheStorage.setCache(key, cachedValue);
 		} else {
 			logger.info("# get from cache. key : {}", key);
@@ -60,9 +61,10 @@ public class ThreadLocalCacheInterceptor {
 
 	/**
 	 * 캐싱 키 생성
-	 * @param keyForamt 키 포맷
-	 * @param keyPrefix 키 접두사
-	 * @param args 메서드 파라미터 리스트
+	 *
+	 * @param keyForamt   키 포맷
+	 * @param keyPrefix   키 접두사
+	 * @param args        메서드 파라미터 리스트
 	 * @param annotations 메서드 파라미터에 적용되어있는 어노테이션 리스트
 	 * @return 캐시키
 	 */
