@@ -25,7 +25,7 @@ import util.StringUtil;
 public class ThreadLocalCacheInterceptor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private ThreadLocal<EnumMap<LocalCacheType,  CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
+	private final ThreadLocal<EnumMap<LocalCacheType,  CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
 
 	@Pointcut("@annotation(cache.LocalCacheable)")
 	public void annotion(){}
