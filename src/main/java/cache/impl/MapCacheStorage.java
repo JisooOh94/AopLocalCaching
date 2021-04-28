@@ -31,4 +31,9 @@ public class MapCacheStorage<K, V> implements CacheStorage<K, V> {
 		storage.put(key, value);
 		return true;
 	}
+
+	@Override
+	public int getMaxSize() {
+		return maxSize;
+	}
 }
