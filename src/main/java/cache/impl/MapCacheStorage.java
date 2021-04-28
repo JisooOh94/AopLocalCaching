@@ -1,13 +1,17 @@
 package cache.impl;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cache.CacheStorage;
 
 public class MapCacheStorage<K, V> implements CacheStorage<K, V> {
-	private Map<K, V> storage;
-	private int maxSize;
+	protected Map<K, V> storage;
+	protected int maxSize;
+
+	public MapCacheStorage() {
+	}
 
 	public MapCacheStorage(int size) {
 		this.storage = new HashMap<>();

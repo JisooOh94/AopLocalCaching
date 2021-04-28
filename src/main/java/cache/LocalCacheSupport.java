@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import cache.impl.CommonCacheStorage;
+import cache.impl.EnumMapCacheStorage;
 import cache.impl.MapCacheStorage;
 import cache.type.CommonCacheType;
 import cache.type.LocalCacheType;
@@ -23,6 +23,7 @@ public class LocalCacheSupport {
 		return getCache(COMMON_CACHE, key);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <K, V> V getCache(LocalCacheType type, K key) {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if(cacheStorageCollection == null) return null;
@@ -34,24 +35,18 @@ public class LocalCacheSupport {
 	}
 
 	public <V> void setCache(CommonCacheType key, V val) {
-		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
-		CacheStorage<CommonCacheType, V> cacheStorage = cacheStorageCollection.get(COMMON_CACHE);
-		if(cacheStorage == null) {
-			cacheStorage = new CommonCacheStorage();
-			cacheStorageCollection.put(COMMON_CACHE, cacheStorage);
-		}
-
-		cacheStorage.setCache(key, val);
+		setCache(COMMON_CACHE, INF, key, val);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <K, V> void setCache(LocalCacheType type, int size, K key, V val) {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
 
 		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
 
 		if (cacheStorage == null) {
-			int cacheSize = size != DEFAULT ? size : type.getDefaultSize();
-			cacheStorage = new MapCacheStorage<>(cacheSize);
+			int cacheSize = size == DEFAULT ? type.getDefaultSize() : size;
+			cacheStorage = key instanceof Enum ? new EnumMapCacheStorage<>(key, size) : new MapCacheStorage<>(cacheSize);
 			cacheStorageCollection.put(type, cacheStorage);
 		}
 
