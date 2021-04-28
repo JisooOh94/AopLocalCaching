@@ -1,5 +1,6 @@
 package cache;
 
+import static cache.CacheStorage.*;
 import static cache.type.LocalCacheType.*;
 
 import java.lang.annotation.ElementType;
@@ -16,5 +17,5 @@ public @interface LocalCacheable {
 	LocalCacheType type() default COMMON_CACHE;
 	String keyFormat() default "{}";
 	String keyPrefix() default StringUtils.EMPTY;
-	int maxSize() default 100;
+	int maxSize() default DEFAULT;
 }
