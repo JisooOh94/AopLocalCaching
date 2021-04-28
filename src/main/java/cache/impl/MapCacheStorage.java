@@ -14,7 +14,7 @@ public class MapCacheStorage<K, V> implements CacheStorage<K, V> {
 	}
 
 	public MapCacheStorage(int size) {
-		this.storage = new HashMap<>();
+		this.storage = new LinkedHashMap<>();
 		this.maxSize = size;
 	}
 
@@ -26,7 +26,9 @@ public class MapCacheStorage<K, V> implements CacheStorage<K, V> {
 	@Override
 	public boolean setCache(K key, V value) {
 		if (maxSize != INF && storage.size() == maxSize && !storage.containsKey(key)) {
-			storage.entrySet().iterator().remove();
+			Iterator iter = storage.entrySet().iterator();
+			iter.next();
+			iter.remove();
 		}
 		storage.put(key, value);
 		return true;
