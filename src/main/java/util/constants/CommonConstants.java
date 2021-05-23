@@ -1,7 +1,7 @@
-package constants;
+package util.constants;
 
 public class CommonConstants {
-	private CommonConstants() {
+	public CommonConstants() {
 		throw new AssertionError();
 	}
 

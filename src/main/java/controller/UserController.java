@@ -1,5 +1,7 @@
 package controller;
 
+import static view.ViewNameSpace.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,7 +26,7 @@ public class UserController {
 		UserInfo userInfo = userInfoBo.getUserInfo(userId);
 		model.addAttribute("key", "UserInfo");
 		model.addAttribute("value", userInfo);
-		return "userInfo";
+		return USER_INFO.getViewName();
 	}
 
 	@GetMapping("/name")
@@ -32,7 +34,7 @@ public class UserController {
 		String userName = userInfoBo.getUserName(userId);
 		model.addAttribute("key", "UserName");
 		model.addAttribute("value", userName);
-		return "userInfo";
+		return USER_INFO.getViewName();
 	}
 
 	@GetMapping("/age")
@@ -40,6 +42,6 @@ public class UserController {
 		int userAge = userInfoBo.getUserAge(userId);
 		model.addAttribute("key", "UserAge");
 		model.addAttribute("value", userAge);
-		return "userInfo";
+		return USER_INFO.getViewName();
 	}
 }
