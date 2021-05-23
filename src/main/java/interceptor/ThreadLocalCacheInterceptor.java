@@ -5,14 +5,16 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import cache.LocalCacheable;
 import cache.LocalCacheSupport;
+import cache.LocalCacheable;
 
 @Aspect
 public class ThreadLocalCacheInterceptor {
-	private LocalCacheSupport localCacheSupport;
+	private final LocalCacheSupport localCacheSupport;
+
+	public ThreadLocalCacheInterceptor(LocalCacheSupport localCacheSupport) {
+		this.localCacheSupport = localCacheSupport;
+	}
 
 	@Pointcut("@annotation(cache.LocalCacheable)")
 	public void annotion() {
