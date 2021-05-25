@@ -68,8 +68,14 @@ public class ApplicationContextConfig {
 	}
 
 	@Bean
-	public LocalCacheSupport localCacheSupport() { return new LocalCacheSupport(); }
+	public LocalCacheSupport localCacheSupport() {
+		return new LocalCacheSupport();
+	}
 
 	@Bean
-	public ThreadLocalCacheInterceptor localCacheRepository() { return new ThreadLocalCacheInterceptor(localCacheSupport()); }
+	public ThreadLocalCacheInterceptor localCacheInterceptor() {
+		ThreadLocalCacheInterceptor localCacheInterceptor = new ThreadLocalCacheInterceptor();
+		localCacheInterceptor.setLocalCacheSupport(localCacheSupport());
+		return localCacheInterceptor;
+	}
 }

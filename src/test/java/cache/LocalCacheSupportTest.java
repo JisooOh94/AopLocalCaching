@@ -96,18 +96,6 @@ public class LocalCacheSupportTest {
 	}
 
 	@Test
-	public void setCache_cacheStorage_defaultSize() {
-		given(threadLocal.get()).willReturn(cacheStorageCollection);
-
-		localCacheSupport.setCache(cacheType, CacheStorage.DEFAULT, sampleKey, sampleValue);
-
-		CacheStorage<String, String> cacheStorage = cacheStorageCollection.get(cacheType);
-
-		assertEquals(sampleValue, cacheStorage.getCache(sampleKey));
-		assertEquals(cacheStorage.getMaxSize(), cacheType.getDefaultSize());
-	}
-
-	@Test
 	public void setCache_cacheStorage_full() {
 		String sampleKey_2 = "sampleKey_2";
 		CacheStorage<String, String> cacheStorage = new MapCacheStorage<>(1);

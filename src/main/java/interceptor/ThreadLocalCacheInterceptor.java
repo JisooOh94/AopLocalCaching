@@ -10,18 +10,18 @@ import cache.LocalCacheable;
 
 @Aspect
 public class ThreadLocalCacheInterceptor {
-	private final LocalCacheSupport localCacheSupport;
+	private LocalCacheSupport localCacheSupport;
 
-	public ThreadLocalCacheInterceptor(LocalCacheSupport localCacheSupport) {
+	public void setLocalCacheSupport(LocalCacheSupport localCacheSupport) {
 		this.localCacheSupport = localCacheSupport;
 	}
 
-	@Pointcut("@annotation(cache.LocalCacheable)")
-	public void annotion() {
+	@Pointcut("@annotation(target) && execution(* *(..))")
+	public void annotion(LocalCacheable target) {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Around("annotion() && @annotation(target)")
+	@Around("annotion(target)")
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
 		String key = localCacheSupport.generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
 
@@ -33,5 +33,4 @@ public class ThreadLocalCacheInterceptor {
 
 		return cachedValue;
 	}
-
 }

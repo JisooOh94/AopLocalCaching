@@ -2,6 +2,7 @@ package cache;
 
 import static cache.CacheStorage.*;
 import static cache.type.LocalCacheType.*;
+import static org.apache.commons.lang3.ObjectUtils.*;
 
 import java.lang.annotation.Annotation;
 import java.util.EnumMap;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ObjectUtils;
 import cache.impl.EnumMapCacheStorage;
 import cache.impl.MapCacheStorage;
 import cache.type.CommonCacheType;
@@ -39,14 +41,14 @@ public class LocalCacheSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> void setCache(LocalCacheType type, int size, K key, V val) {
+	public <K, V> void setCache(LocalCacheType type, Integer size, K key, V val) {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
 
 		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
 
 		if (cacheStorage == null) {
-			int cacheSize = size == DEFAULT ? type.getDefaultSize() : size;
-			cacheStorage = key instanceof Enum ? new EnumMapCacheStorage<>(key, size) : new MapCacheStorage<>(cacheSize);
+			int cacheSize = defaultIfNull(size, type.getDefaultSize());
+			cacheStorage = type == COMMON_CACHE ? new EnumMapCacheStorage<>(key, cacheSize) : new MapCacheStorage<>(cacheSize);
 			cacheStorageCollection.put(type, cacheStorage);
 		}
 

@@ -14,11 +14,6 @@ public class UserInfoBo {
 		this.userInfoDao = userInfoDao;
 	}
 
-	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userInfo")
-	public UserInfo getUserInfo(@CacheKey String userId) {
-		return userInfoDao.getUserInfo(userId);
-	}
-
 	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userName")
 	public String getUserName(String userId) {
 		return userInfoDao.getUserName(userId);
@@ -27,5 +22,15 @@ public class UserInfoBo {
 	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userAge")
 	public int getUserAge(String userId) {
 		return userInfoDao.getUserAge(userId);
+	}
+
+	public int getUserNo(String userId) {
+		UserInfo userInfo = getUserInfo(userId);
+		return userInfo.getUserNo();
+	}
+
+	@LocalCacheable(type = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userInfo")
+	private UserInfo getUserInfo(@CacheKey String userId) {
+		return userInfoDao.getUserInfo(userId);
 	}
 }

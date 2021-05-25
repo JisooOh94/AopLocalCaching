@@ -24,6 +24,7 @@ public class UserInfoDao {
 	}
 
 	public UserInfo getUserInfo(String userId) {
+		System.out.println("# getUserInfo Called!");
 		String query = "SELECT * FROM user_info WHERE user_id = :userId";
 
 		Map<String, Object> param = new HashMap<>();

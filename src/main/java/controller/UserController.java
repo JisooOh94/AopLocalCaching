@@ -23,7 +23,11 @@ public class UserController {
 
 	@GetMapping("/info")
 	public String getUserInfo(@RequestParam String userId, ModelMap model) {
-		UserInfo userInfo = userInfoBo.getUserInfo(userId);
+		String userName = userInfoBo.getUserName(userId);
+		int userAge = userInfoBo.getUserAge(userId);
+		int userNo = userInfoBo.getUserNo(userId);
+
+		UserInfo userInfo = new UserInfo(userNo, userId, userAge, userName);
 		model.addAttribute("key", "UserInfo");
 		model.addAttribute("value", userInfo);
 		return USER_INFO.getViewName();
@@ -42,6 +46,14 @@ public class UserController {
 		int userAge = userInfoBo.getUserAge(userId);
 		model.addAttribute("key", "UserAge");
 		model.addAttribute("value", userAge);
+		return USER_INFO.getViewName();
+	}
+
+	@GetMapping("/no")
+	public String getUserNo(@RequestParam String userId, ModelMap model) {
+		int userNo = userInfoBo.getUserNo(userId);
+		model.addAttribute("key", "UserNo");
+		model.addAttribute("value", userNo);
 		return USER_INFO.getViewName();
 	}
 }
