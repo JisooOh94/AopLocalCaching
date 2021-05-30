@@ -13,7 +13,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import bo.UserInfoBo;
 import cache.LocalCacheSupport;
 import dao.UserInfoDao;
-import interceptor.ThreadLocalCacheInterceptor;
 import repository.impl.NamedParameterRepository;
 import repository.impl.SimpleRepository;
 
@@ -70,12 +69,5 @@ public class ApplicationContextConfig {
 	@Bean
 	public LocalCacheSupport localCacheSupport() {
 		return new LocalCacheSupport();
-	}
-
-	@Bean
-	public ThreadLocalCacheInterceptor localCacheInterceptor() {
-		ThreadLocalCacheInterceptor localCacheInterceptor = new ThreadLocalCacheInterceptor();
-		localCacheInterceptor.setLocalCacheSupport(localCacheSupport());
-		return localCacheInterceptor;
 	}
 }

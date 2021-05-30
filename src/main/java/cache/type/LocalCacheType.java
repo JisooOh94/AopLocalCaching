@@ -1,13 +1,19 @@
 package cache.type;
 
-import cache.CacheStorage;
+import static cache.CacheStorage.*;
 
 public enum LocalCacheType {
-	COMMON_CACHE(CacheStorage.INF),
-	USER_INFO_CACHE(100)
+	//map cache
+	USER_INFO_CACHE(100),
+	SINGLETON_CACHE(INF),
+
+	//singleton cache
+	COMMON_CACHE()
 	;
 
 	private int defaultSize;
+
+	LocalCacheType() { }
 
 	LocalCacheType(int defaultSize) {
 		this.defaultSize = defaultSize;

@@ -1,7 +1,7 @@
 package view;
 
 public enum ViewNameSpace {
-	USER_INFO("userINfo")
+	USER_INFO("userInfo")
 	;
 
 	private String viewName;
