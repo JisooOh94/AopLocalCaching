@@ -13,7 +13,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import cache.impl.EnumMapCacheStorage;
 import cache.impl.MapCacheStorage;
-import cache.type.CommonCacheType;
 import cache.type.LocalCacheType;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -24,7 +23,6 @@ public class LocalCacheSupportTest {
 
 	private int size = 100;
 	private String sampleKey = "sampleKey";
-	private CommonCacheType sampleCommonCacheKey = CommonCacheType.SAMPLE;
 	private String sampleValue = "sampleValue";
 	private LocalCacheType cacheType = LocalCacheType.USER_INFO_CACHE;
 	private int cacheSize = 100;
@@ -59,17 +57,6 @@ public class LocalCacheSupportTest {
 
 		String result = localCacheSupport.getCache(cacheType, sampleKey);
 		assertNull(result);
-	}
-
-	@Test
-	public void getCache_commonCache() {
-		CacheStorage<CommonCacheType, String> cacheStorage = new EnumMapCacheStorage<>(CommonCacheType.SAMPLE, CacheStorage.INF);
-		cacheStorage.setCache(sampleCommonCacheKey, sampleValue);
-		cacheStorageCollection.put(LocalCacheType.COMMON_CACHE, cacheStorage);
-		given(threadLocal.get()).willReturn(cacheStorageCollection);
-
-		String result = localCacheSupport.getCache(LocalCacheType.COMMON_CACHE, sampleCommonCacheKey);
-		assertEquals(sampleValue, result);
 	}
 
 	@Test
@@ -108,27 +95,5 @@ public class LocalCacheSupportTest {
 
 		assertEquals(sampleValue, cacheStorage.getCache(sampleKey_2));
 		assertNull(cacheStorage.getCache(sampleKey));
-	}
-
-	@Test
-	public void setCache_commonCache() {
-		CacheStorage<CommonCacheType, String> cacheStorage = new EnumMapCacheStorage<>(CommonCacheType.SAMPLE, CacheStorage.INF);
-		cacheStorageCollection.put(LocalCacheType.COMMON_CACHE, cacheStorage);
-		given(threadLocal.get()).willReturn(cacheStorageCollection);
-
-		localCacheSupport.setCache(CommonCacheType.SAMPLE, sampleValue);
-
-		assertEquals(cacheStorage.getCache(CommonCacheType.SAMPLE), sampleValue);
-	}
-
-	@Test
-	public void setCache_commonCache_cacheStorage_null() {
-		given(threadLocal.get()).willReturn(cacheStorageCollection);
-
-		localCacheSupport.setCache(CommonCacheType.SAMPLE, sampleValue);
-
-		CacheStorage<CommonCacheType, String> cacheStorage = cacheStorageCollection.get(LocalCacheType.COMMON_CACHE);
-		assertTrue(cacheStorage instanceof EnumMapCacheStorage);
-		assertEquals(cacheStorage.getCache(CommonCacheType.SAMPLE), sampleValue);
 	}
 }
