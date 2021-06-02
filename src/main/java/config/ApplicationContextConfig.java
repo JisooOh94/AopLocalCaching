@@ -66,6 +66,7 @@ public class ApplicationContextConfig {
 		return new NamedParameterRepository(jdbcTemplate());
 	}
 
+	//Cache===================================================================================================
 	@Bean
 	public LocalCacheSupport localCacheSupport() {
 		return new LocalCacheSupport();

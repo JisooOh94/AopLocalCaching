@@ -15,7 +15,10 @@ import cache.type.LocalCacheType;
 @Target(ElementType.METHOD)
 public @interface LocalCacheable {
 	LocalCacheType type() default COMMON_CACHE;
+
 	String keyFormat() default "{}";
+
 	String keyPrefix() default StringUtils.EMPTY;
+
 	int maxSize() default INF;
 }

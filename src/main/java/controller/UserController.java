@@ -52,7 +52,6 @@ public class UserController {
 	@GetMapping("/no")
 	public String getUserNo(@RequestParam String userId, ModelMap model) {
 		int userNo = userInfoBo.getUserNo(userId);
-		userNo = userInfoBo.getUserNo(userId);
 		model.addAttribute("key", "UserNo");
 		model.addAttribute("value", userNo);
 		return USER_INFO.getViewName();

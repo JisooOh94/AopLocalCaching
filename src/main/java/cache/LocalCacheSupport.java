@@ -24,9 +24,9 @@ import util.StringUtil;
 public class LocalCacheSupport {
 	private final ThreadLocal<EnumMap<LocalCacheType, CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
 
+	@SuppressWarnings("unchecked")
 	@Pointcut("@annotation(target) && execution(* *(..))")
-	public void annotion(LocalCacheable target) {
-	}
+	public void annotion(LocalCacheable target) { }
 
 	@SuppressWarnings("unchecked")
 	@Around("annotion(target)")
@@ -49,10 +49,10 @@ public class LocalCacheSupport {
 	@SuppressWarnings("unchecked")
 	public <K, V> V getCache(LocalCacheType type, K key) {
 		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
-		if(cacheStorageCollection == null) return null;
+		if (cacheStorageCollection == null) return null;
 
 		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
-		if(cacheStorage == null) return null;
+		if (cacheStorage == null) return null;
 
 		return cacheStorage.getCache(key);
 	}

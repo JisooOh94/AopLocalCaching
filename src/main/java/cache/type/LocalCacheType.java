@@ -8,12 +8,12 @@ public enum LocalCacheType {
 	SINGLETON_CACHE(INF),
 
 	//singleton cache
-	COMMON_CACHE()
-	;
+	COMMON_CACHE();
 
 	private int defaultSize;
 
-	LocalCacheType() { }
+	LocalCacheType() {
+	}
 
 	LocalCacheType(int defaultSize) {
 		this.defaultSize = defaultSize;
