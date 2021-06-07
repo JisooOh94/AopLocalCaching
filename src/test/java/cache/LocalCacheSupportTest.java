@@ -23,7 +23,7 @@ public class LocalCacheSupportTest {
 	private int size = 100;
 	private String sampleKey = "sampleKey";
 	private String sampleValue = "sampleValue";
-	private LocalCacheTopic cacheType = LocalCacheTopic.USER_INFO_CACHE;
+	private LocalCacheTopic cacheTopic = LocalCacheTopic.USER_INFO_CACHE;
 	private int cacheSize = 100;
 	private EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = new EnumMap<>(LocalCacheTopic.class);
 
@@ -36,17 +36,17 @@ public class LocalCacheSupportTest {
 	public void getCache() {
 		CacheStorage<String, String> cacheStorage = new MapCacheStorage<>(size);
 		cacheStorage.setCache(sampleKey, sampleValue);
-		cacheStorageCollection.put(cacheType, cacheStorage);
+		cacheStorageCollection.put(cacheTopic, cacheStorage);
 		given(threadLocal.get()).willReturn(cacheStorageCollection);
 
-		String result = localCacheSupport.getCache(cacheType, sampleKey);
+		String result = localCacheSupport.getCache(cacheTopic, sampleKey);
 		assertEquals(sampleValue, result);
 	}
 
 	@Test
 	public void getCache_cacheStorageCollection_null() {
 		given(threadLocal.get()).willReturn(null);
-		String result = localCacheSupport.getCache(cacheType, sampleKey);
+		String result = localCacheSupport.getCache(cacheTopic, sampleKey);
 		assertNull(result);
 	}
 
@@ -54,17 +54,17 @@ public class LocalCacheSupportTest {
 	public void getCache_cacheStorage_null() {
 		given(threadLocal.get()).willReturn(cacheStorageCollection);
 
-		String result = localCacheSupport.getCache(cacheType, sampleKey);
+		String result = localCacheSupport.getCache(cacheTopic, sampleKey);
 		assertNull(result);
 	}
 
 	@Test
 	public void setCache() {
 		CacheStorage<String, String> cacheStorage = new MapCacheStorage<>(cacheSize);
-		cacheStorageCollection.put(cacheType, cacheStorage);
+		cacheStorageCollection.put(cacheTopic, cacheStorage);
 		given(threadLocal.get()).willReturn(cacheStorageCollection);
 
-		localCacheSupport.setCache(cacheType, cacheSize, sampleKey, sampleValue);
+		localCacheSupport.setCache(cacheTopic, cacheSize, sampleKey, sampleValue);
 
 		assertEquals(sampleValue, cacheStorage.getCache(sampleKey));
 	}
@@ -73,9 +73,9 @@ public class LocalCacheSupportTest {
 	public void setCache_cacheStorage_null() {
 		given(threadLocal.get()).willReturn(cacheStorageCollection);
 
-		localCacheSupport.setCache(cacheType, cacheSize, sampleKey, sampleValue);
+		localCacheSupport.setCache(cacheTopic, cacheSize, sampleKey, sampleValue);
 
-		CacheStorage<String, String> cacheStorage = cacheStorageCollection.get(cacheType);
+		CacheStorage<String, String> cacheStorage = cacheStorageCollection.get(cacheTopic);
 
 		assertEquals(sampleValue, cacheStorage.getCache(sampleKey));
 		assertEquals(cacheStorage.getMaxSize(), cacheSize);
@@ -87,10 +87,10 @@ public class LocalCacheSupportTest {
 		CacheStorage<String, String> cacheStorage = new MapCacheStorage<>(1);
 		cacheStorage.setCache(sampleKey, sampleValue);
 
-		cacheStorageCollection.put(cacheType, cacheStorage);
+		cacheStorageCollection.put(cacheTopic, cacheStorage);
 		given(threadLocal.get()).willReturn(cacheStorageCollection);
 
-		localCacheSupport.setCache(cacheType, cacheSize, sampleKey_2, sampleValue);
+		localCacheSupport.setCache(cacheTopic, cacheSize, sampleKey_2, sampleValue);
 
 		assertEquals(sampleValue, cacheStorage.getCache(sampleKey_2));
 		assertNull(cacheStorage.getCache(sampleKey));

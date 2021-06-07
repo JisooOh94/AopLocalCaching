@@ -14,7 +14,7 @@ import cache.type.LocalCacheTopic;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface LocalCacheable {
-	LocalCacheTopic type() default COMMON_CACHE;
+	LocalCacheTopic topic() default COMMON_CACHE;
 
 	String keyFormat() default "{}";
 

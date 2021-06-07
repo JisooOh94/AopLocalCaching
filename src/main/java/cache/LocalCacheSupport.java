@@ -33,10 +33,10 @@ public class LocalCacheSupport {
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
 		String key = generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
 
-		T cachedValue = getCache(target.type(), key);
+		T cachedValue = getCache(target.topic(), key);
 		if (cachedValue == null) {
 			cachedValue = (T) invoker.proceed();
-			setCache(target.type(), target.maxSize(), key, cachedValue);
+			setCache(target.topic(), target.maxSize(), key, cachedValue);
 		}
 
 		return cachedValue;
@@ -47,11 +47,11 @@ public class LocalCacheSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> V getCache(LocalCacheTopic type, K key) {
+	public <K, V> V getCache(LocalCacheTopic topic, K key) {
 		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if (cacheStorageCollection == null) return null;
 
-		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
+		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(topic);
 		if (cacheStorage == null) return null;
 
 		return cacheStorage.getCache(key);
@@ -62,15 +62,15 @@ public class LocalCacheSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> void setCache(LocalCacheTopic type, Integer size, K key, V val) {
+	public <K, V> void setCache(LocalCacheTopic topic, Integer size, K key, V val) {
 		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
 
-		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
+		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(topic);
 
 		if (cacheStorage == null) {
-			int cacheSize = defaultIfNull(size, type.getDefaultSize());
-			cacheStorage = type == SINGLETON_CACHE ? new EnumMapCacheStorage<>(key, cacheSize) : new MapCacheStorage<>(cacheSize);
-			cacheStorageCollection.put(type, cacheStorage);
+			int cacheSize = defaultIfNull(size, topic.getDefaultSize());
+			cacheStorage = topic == SINGLETON_CACHE ? new EnumMapCacheStorage<>(key, cacheSize) : new MapCacheStorage<>(cacheSize);
+			cacheStorageCollection.put(topic, cacheStorage);
 		}
 
 		cacheStorage.setCache(key, val);
