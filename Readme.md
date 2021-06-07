@@ -88,7 +88,7 @@ public class ThreadLocalClearInterceptor implements HandlerInterceptor {
 ```
 
 # TO-BE
-* LocalCaching 로직을 횡단관심사 모듈로 분리후 어노테이션을 통한 AOP 로 적용
+* LocalCaching 로직을 횡단관심사 모듈로 분리
 ```java
 @Aspect
 public class LocalCacheSupport {
@@ -104,7 +104,10 @@ public class LocalCacheSupport {
 		//caching logic
 	}
 }
+```
 
+* 어노테이션을 통한 AOP 로 캐싱 적용
+```java
 @LocalCacheable
 public PublicGroupInfo getPublicGroupInfo(String ownerId) {
 	return shareInvoker.getPublicGroupInfo(ownerId);
@@ -121,19 +124,101 @@ public String getWorksGroupFolderName(String clientId, String ownerId) {
 }
 ```
 * 하나의 ThreadLocal 객체에서 모든 캐시데이터 관리
-//TODO : 그림
- 
+> AS-IS
+
+![image](https://user-images.githubusercontent.com/48702893/121021984-e560f000-c7dc-11eb-8446-413d3d43dce0.png)
+
+> TO-BE
+
+![image](https://user-images.githubusercontent.com/48702893/121022249-20632380-c7dd-11eb-8fd5-c6b4da840327.png)
+
 * 2중 해싱으로 인한 성능 저하를 완화하기위해 Topic 을 Enum 으로 정의 후, Topic 맵을 EnumMap 으로 선언
 
+```java
+//getCache
+EnumMap<LocalCacheTopic, CacheStorage> cacheMapCollection = threadLocalCache.get();
+Map<Key, Value> cacheMap = cacheMapCollection.get(topic);
+return cacheMap.get(key);
+```
+
+### TO-BE 의 문제점
+1. AOP 프록시 객체로 전달되는 파라미터 중 cache key 로 사용할 파라미터를 알 수 없음
+```java
+public class ShareFolderRepository extends ThreadLocalCacheSupport<String> {
+	public String getWorksGroupFolderName(String clientId, String ownerId) {
+    	String groupFolderName;
+    	try {
+    		groupFolderName = getCacheValue(ownerId);
+    		...
+    	}
+    }
+    ...
+}
+```
+```java
+
+@LocalCacheable
+public String getWorksGroupFolderName(String clientId, String ownerId) {
+	...
+}
+```
 * 선택적 CacheKey 적용을 위해 @CacheKey 파라미터 어노테이션 추가
 ```java
 @LocalCacheable
 public String getWorksGroupFolderName(String clientId, @CacheKey String ownerId) {
 	...
 }
+
+//LocalCacheSupport
+private String generateCacheKey(Object[] args, Annotation[][] annotations) {
+	//메서드 파라미터중, @CacheKey 어노테이션이 적용되어있는 파라미터만 키에 포함시킨다.
+	List<Object> keyParamList = IntStream.range(0, args.length)
+			.boxed()
+			.filter(idx -> annotations[idx] != null)
+			.filter(idx -> Stream.of(annotations[idx]).anyMatch(annotation -> annotation.annotationType() == CacheKey.class))
+			.map(idx -> args[idx])
+			.collect(Collectors.toList());
+	
+	...
+}
 ```
 
-### AspectJ AOP
+2.public 메서드에 대해서만 캐싱 적용 가능하여 여전히 별도의 Repository 클래스 필요
+```java
+//PublicGroupRepository.class
+@LocalCacheable
+public PublicGroupInfo getPublicGroupInfo(String ownerId) {
+	return shareInvoker.getPublicGroupInfo(ownerId);
+}
 
- 
+//WmLogAppender.class
+@Autowired
+private PublicGroupRepository publicGroupRepository;
 
+private String getPublicGroupHistoryLog(String ownerId) {
+	...
+	PublicGroupInfo publicGroupInfo = publicGroupRepository.getPublicGroupInfo(ownerId);  
+	int domainId = publicGroupInfo.getDomainId();
+	int tenantId = publicGroupInfo.getTenantId();
+	...
+}
+```
+* Proxy 객체를 사용하는 Srping AOP 대신, AspectJ AOP 를 사용하여, Compile time weaving 을 통해 private method 에 localcahing 적용
+```java
+//WmLogAppender.class
+@Autowired
+private String getPublicGroupHistoryLog(String ownerId) {
+	...
+	PublicGroupInfo publicGroupInfo = getPublicGroupInfo(ownerId);  
+	int domainId = publicGroupInfo.getDomainId();
+	int tenantId = publicGroupInfo.getTenantId();
+	...
+}
+
+@LocalCacheable
+private PublicGroupInfo getPublicGroupInfo(String ownerId) {
+	return shareInvoker.getPublicGroupInfo(ownerId);
+}
+```
+
+# 성능 테스트
