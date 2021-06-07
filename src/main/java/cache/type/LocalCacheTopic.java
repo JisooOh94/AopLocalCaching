@@ -2,7 +2,7 @@ package cache.type;
 
 import static cache.CacheStorage.*;
 
-public enum LocalCacheType {
+public enum LocalCacheTopic {
 	//map cache
 	USER_INFO_CACHE(100),
 	SINGLETON_CACHE(INF),
@@ -12,10 +12,10 @@ public enum LocalCacheType {
 
 	private int defaultSize;
 
-	LocalCacheType() {
+	LocalCacheTopic() {
 	}
 
-	LocalCacheType(int defaultSize) {
+	LocalCacheTopic(int defaultSize) {
 		this.defaultSize = defaultSize;
 	}
 

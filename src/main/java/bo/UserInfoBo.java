@@ -1,6 +1,6 @@
 package bo;
 
-import static cache.type.LocalCacheType.*;
+import static cache.type.LocalCacheTopic.*;
 
 import cache.CacheKey;
 import cache.LocalCacheable;

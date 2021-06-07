@@ -11,9 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import cache.impl.EnumMapCacheStorage;
 import cache.impl.MapCacheStorage;
-import cache.type.LocalCacheType;
+import cache.type.LocalCacheTopic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalCacheSupportTest {
@@ -24,9 +23,9 @@ public class LocalCacheSupportTest {
 	private int size = 100;
 	private String sampleKey = "sampleKey";
 	private String sampleValue = "sampleValue";
-	private LocalCacheType cacheType = LocalCacheType.USER_INFO_CACHE;
+	private LocalCacheTopic cacheType = LocalCacheTopic.USER_INFO_CACHE;
 	private int cacheSize = 100;
-	private EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = new EnumMap<>(LocalCacheType.class);
+	private EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = new EnumMap<>(LocalCacheTopic.class);
 
 	@Before
 	public void init() {

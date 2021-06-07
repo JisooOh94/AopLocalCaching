@@ -1,6 +1,6 @@
 package cache;
 
-import static cache.type.LocalCacheType.*;
+import static cache.type.LocalCacheTopic.*;
 import static org.apache.commons.lang3.ObjectUtils.*;
 
 import java.lang.annotation.Annotation;
@@ -17,12 +17,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import cache.impl.EnumMapCacheStorage;
 import cache.impl.MapCacheStorage;
-import cache.type.LocalCacheType;
+import cache.type.LocalCacheTopic;
 import util.StringUtil;
 
 @Aspect
 public class LocalCacheSupport {
-	private final ThreadLocal<EnumMap<LocalCacheType, CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
+	private final ThreadLocal<EnumMap<LocalCacheTopic, CacheStorage>> threadLocalCache = new InheritableThreadLocal<>();
 
 	@SuppressWarnings("unchecked")
 	@Pointcut("@annotation(target) && execution(* *(..))")
@@ -42,13 +42,13 @@ public class LocalCacheSupport {
 		return cachedValue;
 	}
 
-	public <V> V getCache(LocalCacheType key) {
+	public <V> V getCache(LocalCacheTopic key) {
 		return getCache(SINGLETON_CACHE, key);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> V getCache(LocalCacheType type, K key) {
-		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
+	public <K, V> V getCache(LocalCacheTopic type, K key) {
+		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if (cacheStorageCollection == null) return null;
 
 		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
@@ -57,13 +57,13 @@ public class LocalCacheSupport {
 		return cacheStorage.getCache(key);
 	}
 
-	public <V> void setCache(LocalCacheType key, V val) {
+	public <V> void setCache(LocalCacheTopic key, V val) {
 		setCache(SINGLETON_CACHE, null, key, val);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> void setCache(LocalCacheType type, Integer size, K key, V val) {
-		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
+	public <K, V> void setCache(LocalCacheTopic type, Integer size, K key, V val) {
+		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
 
 		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(type);
 
@@ -80,10 +80,10 @@ public class LocalCacheSupport {
 	 *
 	 * @return
 	 */
-	private EnumMap<LocalCacheType, CacheStorage> getCacheStorageCollection() {
-		EnumMap<LocalCacheType, CacheStorage> cacheStorageCollection = threadLocalCache.get();
+	private EnumMap<LocalCacheTopic, CacheStorage> getCacheStorageCollection() {
+		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if (cacheStorageCollection == null) {
-			cacheStorageCollection = new EnumMap<>(LocalCacheType.class);
+			cacheStorageCollection = new EnumMap<>(LocalCacheTopic.class);
 			threadLocalCache.set(cacheStorageCollection);
 		}
 		return cacheStorageCollection;
