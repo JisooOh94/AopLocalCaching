@@ -25,7 +25,7 @@ public class MapCacheStorage<K, V> implements CacheStorage<K, V> {
 
 	@Override
 	public boolean setCache(K key, V value) {
-		if (maxSize != INF && storage.size() == maxSize && !storage.containsKey(key)) {
+		if (maxSize != 0 && storage.size() == maxSize && !storage.containsKey(key)) {
 			Iterator iter = storage.entrySet().iterator();
 			iter.next();
 			iter.remove();
