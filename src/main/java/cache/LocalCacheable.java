@@ -22,5 +22,5 @@ public @interface LocalCacheable {
 
 	int maxSize() default 0;
 
-	long expireTimeMillis() default 0;
+	long expireTime() default 0;
 }
