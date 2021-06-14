@@ -38,7 +38,7 @@ public class LocalCacheSupport {
 		if (cachedValue == null) {
 			cachedValue = (T) invoker.proceed();
 			if(target.expireTime() != 0) {
-				setCache(target.topic(), target.maxSize(), target.expireTime(), key, cachedValue);
+				setCache(target.topic(), target.maxSize(), System.currentTimeMillis(), key, cachedValue);
 			} else {
 				setCache(target.topic(), target.maxSize(), key, cachedValue);
 			}
@@ -90,9 +90,9 @@ public class LocalCacheSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> void setCache(LocalCacheTopic topic, int size, long expireTime, K key, V val) {
+	public <K, V> void setCache(LocalCacheTopic topic, int size, long creationTime, K key, V val) {
 		CacheStorage<K, Pair<V, Long>> cacheStorage = setCacheStorage(topic, key, size);
-		cacheStorage.setCache(key, Pair.of(val, expireTime));
+		cacheStorage.setCache(key, Pair.of(val, creationTime));
 	}
 
 	private <K> CacheStorage setCacheStorage(LocalCacheTopic topic, K key, int size) {
