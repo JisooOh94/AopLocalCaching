@@ -85,17 +85,17 @@ public class LocalCacheSupport {
 
 	@SuppressWarnings("unchecked")
 	public <K, V> void setCache(LocalCacheTopic topic, int size, K key, V val) {
-		CacheStorage cacheStorage = getCacheStorage(topic, key, size);
+		CacheStorage cacheStorage = setCacheStorage(topic, key, size);
 		cacheStorage.setCache(key, val);
 	}
 
 	@SuppressWarnings("unchecked")
 	public <K, V> void setCache(LocalCacheTopic topic, int size, long expireTime, K key, V val) {
-		CacheStorage<K, Pair<V, Long>> cacheStorage = getCacheStorage(topic, key, size);
+		CacheStorage<K, Pair<V, Long>> cacheStorage = setCacheStorage(topic, key, size);
 		cacheStorage.setCache(key, Pair.of(val, expireTime));
 	}
 
-	private <K> CacheStorage getCacheStorage(LocalCacheTopic topic, K key, int size) {
+	private <K> CacheStorage setCacheStorage(LocalCacheTopic topic, K key, int size) {
 		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if (cacheStorageCollection == null) {
 			cacheStorageCollection = new EnumMap<>(LocalCacheTopic.class);
