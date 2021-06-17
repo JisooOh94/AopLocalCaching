@@ -1,15 +1,16 @@
 package cache;
 
 import static cache.type.LocalCacheTopic.*;
-import static org.apache.commons.lang3.ObjectUtils.*;
 
 import java.lang.annotation.Annotation;
+import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,10 +34,14 @@ public class LocalCacheSupport {
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
 		String key = generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
 
-		T cachedValue = getCache(target.topic(), key);
+		T cachedValue = target.expireTime() != 0 ? getCache(target.topic(), key, target.expireTime()) : getCache(target.topic(), key);
 		if (cachedValue == null) {
 			cachedValue = (T) invoker.proceed();
-			setCache(target.topic(), target.maxSize(), key, cachedValue);
+			if(target.expireTime() != 0) {
+				setCache(target.topic(), target.maxSize(), System.currentTimeMillis(), key, cachedValue);
+			} else {
+				setCache(target.topic(), target.maxSize(), key, cachedValue);
+			}
 		}
 
 		return cachedValue;
@@ -48,45 +53,62 @@ public class LocalCacheSupport {
 
 	@SuppressWarnings("unchecked")
 	public <K, V> V getCache(LocalCacheTopic topic, K key) {
-		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
-		if (cacheStorageCollection == null) return null;
+		CacheStorage<K, V> cacheStorage = getCacheStorage(topic);
 
-		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(topic);
-		if (cacheStorage == null) return null;
-
-		return cacheStorage.getCache(key);
-	}
-
-	public <V> void setCache(LocalCacheTopic key, V val) {
-		setCache(SINGLETON_CACHE, null, key, val);
+		return cacheStorage == null ? null : cacheStorage.getCache(key);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> void setCache(LocalCacheTopic topic, Integer size, K key, V val) {
-		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = getCacheStorageCollection();
-
-		CacheStorage<K, V> cacheStorage = cacheStorageCollection.get(topic);
-
-		if (cacheStorage == null) {
-			int cacheSize = defaultIfNull(size, topic.getDefaultSize());
-			cacheStorage = topic == SINGLETON_CACHE ? new EnumMapCacheStorage<>(key, cacheSize) : new MapCacheStorage<>(cacheSize);
-			cacheStorageCollection.put(topic, cacheStorage);
+	public <K, V> V getCache(LocalCacheTopic topic, K key, long expireTime) {
+		CacheStorage<K, Pair<V, Long>> cacheStorage = getCacheStorage(topic);
+		if(cacheStorage == null) {
+			return null;
 		}
 
+		Pair<V, Long> cachedValue = cacheStorage.getCache(key);
+		return Calendar.getInstance().getTimeInMillis() - cachedValue.getRight() <= expireTime ? cachedValue.getLeft() : null;
+	}
+
+	private CacheStorage getCacheStorage(LocalCacheTopic topic) {
+		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
+		if (cacheStorageCollection == null) return null;
+
+		CacheStorage cacheStorage = cacheStorageCollection.get(topic);
+		if (cacheStorage == null) return null;
+
+		return cacheStorage;
+	}
+
+	public <V> void setCache(LocalCacheTopic key, V val) {
+		setCache(SINGLETON_CACHE, 0, 0, key, val);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <K, V> void setCache(LocalCacheTopic topic, int size, K key, V val) {
+		CacheStorage cacheStorage = setCacheStorage(topic, key, size);
 		cacheStorage.setCache(key, val);
 	}
 
-	/**
-	 *
-	 * @return
-	 */
-	private EnumMap<LocalCacheTopic, CacheStorage> getCacheStorageCollection() {
+	@SuppressWarnings("unchecked")
+	public <K, V> void setCache(LocalCacheTopic topic, int size, long creationTime, K key, V val) {
+		CacheStorage<K, Pair<V, Long>> cacheStorage = setCacheStorage(topic, key, size);
+		cacheStorage.setCache(key, Pair.of(val, creationTime));
+	}
+
+	private <K> CacheStorage setCacheStorage(LocalCacheTopic topic, K key, int size) {
 		EnumMap<LocalCacheTopic, CacheStorage> cacheStorageCollection = threadLocalCache.get();
 		if (cacheStorageCollection == null) {
 			cacheStorageCollection = new EnumMap<>(LocalCacheTopic.class);
 			threadLocalCache.set(cacheStorageCollection);
 		}
-		return cacheStorageCollection;
+
+		CacheStorage cacheStorage = cacheStorageCollection.get(topic);
+
+		if (cacheStorage == null) {
+			cacheStorage = topic == SINGLETON_CACHE ? new EnumMapCacheStorage<>(key, size) : new MapCacheStorage<>(size);
+			cacheStorageCollection.put(topic, cacheStorage);
+		}
+		return cacheStorage;
 	}
 
 	/**
