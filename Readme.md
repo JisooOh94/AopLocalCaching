@@ -221,4 +221,27 @@ private PublicGroupInfo getPublicGroupInfo(String ownerId) {
 }
 ```
 
-# 성능 테스트
+3. 캐시데이터에 캐시 만료 시간 적용 불가능
+```java
+//BlockExtensionRepository.java
+public List<String> get(final int domainId) {
+	// local cache 조회
+	Map<String, Object> cacheValue = getCacheValue(String.valueOf(domainId));
+	if (MapUtils.isNotEmpty(cacheValue)) {
+		Date curDate = new Date();
+		Date createDate = (Date)cacheValue.get(KEY_CREATETIME);
+		
+		if (expireSeconds <= 0 || curDate.before(DateUtils.addSeconds(createDate, expireSeconds))) {
+			return (List<String>)cacheValue.get(KEY_EXTENSIONS);
+		}
+	}
+	...
+}
+```
+* 어노테이션 파라미터로 만료시간 설정할 수 있는 기능 제공
+```java
+@LocalCacheable(expireTime = 15000L)
+private PublicGroupInfo getPublicGroupInfo(String ownerId) {
+	return shareInvoker.getPublicGroupInfo(ownerId);
+}
+``` 
