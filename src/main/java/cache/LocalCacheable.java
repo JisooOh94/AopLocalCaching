@@ -20,5 +20,7 @@ public @interface LocalCacheable {
 
 	String keyPrefix() default StringUtils.EMPTY;
 
-	int maxSize() default INF;
+	int maxSize() default 0;
+
+	long expireTime() default 0;
 }
