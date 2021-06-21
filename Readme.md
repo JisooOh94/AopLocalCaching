@@ -245,3 +245,89 @@ private PublicGroupInfo getPublicGroupInfo(String ownerId) {
 	return shareInvoker.getPublicGroupInfo(ownerId);
 }
 ``` 
+
+<br>
+
+# 성능 테스트
+### 테스트 표본
+* Caching 클래스를 이용한 캐싱
+* AspectJ AOP 를 이용한 캐싱
+
+### 테스트 설계
+* max cache size : 100
+* case 1 : Cache Hit 만 발생
+    * getCache 만 수행했을때의 성능 비교
+* case 2 : Cache Miss 만 발생
+    * getCache + setCache 수행했을때의 성능 비교
+
+### 테스트 결과 - 1
+| 시나리오 | 캐시 적중률(%) | 캐싱 종류 | 평균 수행 시간(ms) | 비고 |
+|:----------:|:------------:|:-----------------:|:--------------:|:-----:|
+|1|100|aop|10.08||
+| | |direct|1.98||
+|2|0|aop|11.04||
+| | |direct|2.69||
+
+### 테스트 결과 분석 - 1
+* Aop 를 이용한 캐시가 Direct 캐시에 비해 약 5배 정도 성능이 떨어짐
+* Aop 캐시 로직의 각 단계별로 시간 측정 결과
+    * key 생성 : 0.0785
+    * threadLocal에서 cache 조회 : 0.0142
+    * threadLocal 에 cache 설정 : 0.0181
+* key 생성 로직에서 많은 부하 발생
+    * 메서드의 전체 파라미터 탐색
+    * stream 을 이용한 loop
+    * reflection 을 통한 Method signature 및 파라미터 조회
+```java
+//메서드 파라미터중, @CacheKey 어노테이션이 적용되어있는 파라미터만 키에 포함시킨다.
+List<Object> keyParamList = IntStream.range(0, args.length)
+		.boxed()
+		.filter(idx -> annotations[idx] != null)
+		.filter(idx -> Stream.of(annotations[idx]).anyMatch(annotation -> annotation.annotationType() == CacheKey.class))
+		.map(idx -> args[idx])
+		.collect(Collectors.toList());
+
+//@CacheKey 어노테이션이 적용된 파라미터가 없다면, 전체 파라미터를 키에 포함시킨다.
+return StringUtil.format(keyForamt, keyParamList.isEmpty() ? args : keyParamList.toArray());
+```
+
+* key 생성 로직에서 stream 이 아닌, for-each 문으로 loop 하도록 수정
+```java
+for(int idx = 0; idx < args.length; idx++) {
+	if(annotations[idx] != null) {
+		for(Annotation annotation : annotations[idx]) {
+			if(annotation.annotationType() == CacheKey.class) {
+				keyParamList.add(args[idx]);
+				break;
+			}
+		}
+	}
+}
+```
+
+### 테스트 결과 - 2
+
+
+| 시나리오 | 캐시 적중률(%) | 캐싱 종류 | 평균 수행 시간(ms) | 비고 |
+|:----------:|:------------:|:-----------------:|:--------------:|:-----:|
+|1|100|aop|3.75||
+| | |direct|1.95||
+|2|0|aop|5.28||
+| | |direct|2.49||
+
+
+### 테스트 결과 분석 - 2
+* 성능 측정결과 Aop 캐시의 성능이 2배 이상 향상
+* Aop 캐시 로직의 각 단계별로 시간 측정 결과 key 생성 로직의 소요시간이 2배 이상 줄어듬
+    * key 생성 : 0.0316
+    * threadLocal에서 cache 조회 : 0.0162
+    * threadLocal 에 cache 설정 : 0.0226
+
+### 테스트 결과 정리
+* Aop Cache 는 Direct Cache 에 비해 약 2배정도의 시간 소모
+    * 컴파일 타임 위빙으로 프록시 객체로 인한 성능저하는 없음
+    * 1번의 해싱만 하면 되는 Direct Cache 에 비해 Aop Cache 는 2번의 Hashing 이 필요하여 약간의 성능 저하 발생
+        > Topic 구분용 Map 을 EnumMap 으로 사용하여 2번의 Hashing 으로 인한 성능저하는 거의 없을것으로 예상
+    * Cache Key 생성 과정에서 메서드 전체 파라미터 탐색이 수행되어 결정적인 성능 저하 발생
+* Cache Key 생성 로직을 수정하여 추가적은 성능 개선 가능
+* Aop Cache 를 통해 얻는 이득(중복코드 제거, 사용의 편리, 개발 시간 절약) 과 손실(성능 저하) 을 따져본뒤 적용 필요
