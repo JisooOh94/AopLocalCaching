@@ -14,12 +14,12 @@ public class UserInfoBo {
 		this.userInfoDao = userInfoDao;
 	}
 
-	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userName")
+	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "userName_{}")
 	public String getUserName(String userId) {
 		return userInfoDao.getUserName(userId);
 	}
 
-	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userAge")
+	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "userAge_{}")
 	public int getUserAge(String userId) {
 		return userInfoDao.getUserAge(userId);
 	}
@@ -29,7 +29,7 @@ public class UserInfoBo {
 		return userInfo.getUserNo();
 	}
 
-	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "{}-{}", keyPrefix = "userInfo")
+	@LocalCacheable(topic = USER_INFO_CACHE, maxSize = 10, keyFormat = "userInfo_{}")
 	private UserInfo getUserInfo(@CacheKey String userId) {
 		return userInfoDao.getUserInfo(userId);
 	}

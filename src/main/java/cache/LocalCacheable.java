@@ -18,8 +18,6 @@ public @interface LocalCacheable {
 
 	String keyFormat() default "{}";
 
-	String keyPrefix() default StringUtils.EMPTY;
-
 	int maxSize() default 0;
 
 	long expireTime() default 0;

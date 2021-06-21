@@ -5,10 +5,8 @@ import static cache.type.LocalCacheTopic.*;
 import java.lang.annotation.Annotation;
 import java.util.Calendar;
 import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -32,7 +30,7 @@ public class LocalCacheSupport {
 	@SuppressWarnings("unchecked")
 	@Around("annotion(target)")
 	public <T> T methodCall(ProceedingJoinPoint invoker, LocalCacheable target) throws Throwable {
-		String key = generateCacheKey(target.keyFormat(), target.keyPrefix(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
+		String key = generateCacheKey(target.keyFormat(), invoker.getArgs(), ((MethodSignature) invoker.getSignature()).getMethod().getParameterAnnotations());
 
 		T cachedValue = target.expireTime() != 0 ? getCache(target.topic(), key, target.expireTime()) : getCache(target.topic(), key);
 		if (cachedValue == null) {
@@ -115,12 +113,11 @@ public class LocalCacheSupport {
 	 * 캐싱 키 생성
 	 *
 	 * @param keyForamt   키 포맷
-	 * @param keyPrefix   키 접두사
 	 * @param args        메서드 파라미터 리스트
 	 * @param annotations 메서드 파라미터에 적용되어있는 어노테이션 리스트
 	 * @return 캐시키
 	 */
-	private String generateCacheKey(String keyForamt, String keyPrefix, Object[] args, Annotation[][] annotations) {
+	private String generateCacheKey(String keyForamt, Object[] args, Annotation[][] annotations) {
 		//메서드 파라미터중, @CacheKey 어노테이션이 적용되어있는 파라미터만 키에 포함시킨다.
 		List<Object> keyParamList = IntStream.range(0, args.length)
 				.boxed()
@@ -130,6 +127,6 @@ public class LocalCacheSupport {
 				.collect(Collectors.toList());
 
 		//@CacheKey 어노테이션이 적용된 파라미터가 없다면, 전체 파라미터를 키에 포함시킨다.
-		return StringUtil.format(keyForamt, keyPrefix, keyParamList.isEmpty() ? args : keyParamList.toArray());
+		return StringUtil.format(keyForamt, keyParamList.isEmpty() ? args : keyParamList.toArray());
 	}
 }
