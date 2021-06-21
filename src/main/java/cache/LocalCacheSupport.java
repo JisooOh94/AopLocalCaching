@@ -119,12 +119,17 @@ public class LocalCacheSupport {
 	 */
 	private String generateCacheKey(String keyForamt, Object[] args, Annotation[][] annotations) {
 		//메서드 파라미터중, @CacheKey 어노테이션이 적용되어있는 파라미터만 키에 포함시킨다.
-		List<Object> keyParamList = IntStream.range(0, args.length)
-				.boxed()
-				.filter(idx -> annotations[idx] != null)
-				.filter(idx -> Stream.of(annotations[idx]).anyMatch(annotation -> annotation.annotationType() == CacheKey.class))
-				.map(idx -> args[idx])
-				.collect(Collectors.toList());
+		List<Object> keyParamList = new LinkedList<>();
+		for(int idx = 0; idx < args.length; idx++) {
+			if(annotations[idx] != null) {
+				for(Annotation annotation : annotations[idx]) {
+					if(annotation.annotationType() == CacheKey.class) {
+						keyParamList.add(args[idx]);
+						break;
+					}
+				}
+			}
+		}
 
 		//@CacheKey 어노테이션이 적용된 파라미터가 없다면, 전체 파라미터를 키에 포함시킨다.
 		return StringUtil.format(keyForamt, keyParamList.isEmpty() ? args : keyParamList.toArray());
