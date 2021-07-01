@@ -14,40 +14,21 @@ public abstract class ThreadLocalCacheSupport<T> {
 ```
 * 캐시 토픽별로 ThreadLocalCacheSupport을 상속받는 Repository 클래스 정의
 ```java
-public class PublicGroupRepository extends ThreadLocalCacheSupport<Object> {
-	public PublicGroupInfo getPublicGroupInfo(String ownerId) {
-		String key = getPublicGroupInfoKey(ownerId);
-		PublicGroupInfo publicGroupInfo = (PublicGroupInfo)getCacheValue(key);
-		if(publicGroupInfo == null) {
+public class UserInfoRepository extends ThreadLocalCacheSupport<Object> {
+	public PublicGroupInfo getUserInfo(String userId) {
+		String key = getUserInfoKey(userId);
+		UserInfo userInfo = (UserInfo)getCacheValue(key);
+		if(userInfo == null) {
 			try {
-				publicGroupInfo = shareInvoker.getPublicGroupInfo(ownerId);
-				putCacheValue(key, publicGroupInfo);
-			} catch (ShareInvokeException e) {
-				putCacheValue(key, DEFAULT_PUBLIC_GROUP_INFO);
+				userInfo = userInvoker.getUserInfo(userId);
+				putCacheValue(key, userInfo);
+			} catch (UserInvokeException e) {
+				putCacheValue(key, DEFAULT_USER_INFO);
 			}
 		}
-		return publicGroupInfo;
+		return userInfo;
 	}
 	...
-}
-
-public class ShareFolderRepository extends ThreadLocalCacheSupport<String> {
-	public String getWorksGroupFolderName(String clientId, String ownerId) {
-    	String groupFolderName;
-    	try {
-    		groupFolderName = getCacheValue(ownerId);
-    		if (groupFolderName == null) {
-    			GroupFolderInfo worksInfo = worksDmsHttpInvoker.getGroupFolderInfoDetail(clientId, ownerId);
-    			groupFolderName = StringUtils.defaultIfBlank(worksInfo.getWorksName(), StringUtils.EMPTY);
-    			putCacheValue(ownerId, groupFolderName);
-    		}
-    	} catch (Exception e) {
-    		groupFolderName = StringUtils.EMPTY;
-    		putCacheValue(ownerId, groupFolderName);
-    	}
-    	return groupFolderName;
-    }
-    ...
 }
 ```
 
@@ -59,18 +40,12 @@ public class ShareFolderRepository extends ThreadLocalCacheSupport<String> {
 ```java
 <beans profile="NCS">
 	<util:list id="threadLocalRepositoryList">
-    	<ref bean="nbaseRepository"/>
-    	<ref bean="compReqInfoRepository"/>
-    	<ref bean="shareFolderRepository"/>
-        <ref bean="shareLogDataRepository"/>
-        <ref bean="blockExtensionRepository"/>
-        <ref bean="userDirectoryManager"/>
-        <ref bean="publicGroupRepository"/>
+    	<ref bean="userInfoRepository"/>
 	</util:list>
 </beans>
 
 <mvc:interceptors>
-        <bean class="com.naver.ndrive.compress.service.interceptor.ThreadLocalClearInterceptor">
+        <bean class="ThreadLocalClearInterceptor">
             <property name="supportList" ref="threadLocalRepositoryList"/>
         </bean>
 </mvc:interceptors>
@@ -109,18 +84,8 @@ public class LocalCacheSupport {
 * 어노테이션을 통한 AOP 로 캐싱 적용
 ```java
 @LocalCacheable
-public PublicGroupInfo getPublicGroupInfo(String ownerId) {
-	return shareInvoker.getPublicGroupInfo(ownerId);
-}
-
-@LocalCacheable
-public String getWorksGroupFolderName(String clientId, String ownerId) {
-	try{
-		GroupFolderInfo worksInfo = worksDmsHttpInvoker.getGroupFolderInfoDetail(clientId, ownerId)
-		return StringUtils.defaultIfBlank(worksInfo.getWorksName(), StringUtils.EMPTY);
-	} catch (Exception e) {
-		return StringUtils.EMPTY;
-	}
+public UserInfo getUserInfo(String userId) {
+	return userInvoker.getUserInfo(userId);
 }
 ```
 * 하나의 ThreadLocal 객체에서 모든 캐시데이터 관리
@@ -144,11 +109,11 @@ return cacheMap.get(key);
 ### TO-BE 의 문제점
 1. AOP 프록시 객체로 전달되는 파라미터 중 cache key 로 사용할 파라미터를 알 수 없음
 ```java
-public class ShareFolderRepository extends ThreadLocalCacheSupport<String> {
-	public String getWorksGroupFolderName(String clientId, String ownerId) {
-    	String groupFolderName;
+public class UserInfoRepository extends ThreadLocalCacheSupport<String> {
+	public String getUserDetailedInfo(String userId, String userNo) {
+    	String userName;
     	try {
-    		groupFolderName = getCacheValue(ownerId);
+    		userName = getCacheValue(userId);
     		...
     	}
     }
@@ -158,14 +123,14 @@ public class ShareFolderRepository extends ThreadLocalCacheSupport<String> {
 ```java
 
 @LocalCacheable
-public String getWorksGroupFolderName(String clientId, String ownerId) {
+public String getUserDetailedInfo(String userId, String userNo) {
 	...
 }
 ```
 * 선택적 CacheKey 적용을 위해 @CacheKey 파라미터 어노테이션 추가
 ```java
 @LocalCacheable
-public String getWorksGroupFolderName(String clientId, @CacheKey String ownerId) {
+public String getUserDetailedInfo(String userId, @CacheKey String userNo) {
 	...
 }
 
@@ -185,48 +150,47 @@ private String generateCacheKey(Object[] args, Annotation[][] annotations) {
 
 2.public 메서드에 대해서만 캐싱 적용 가능하여 여전히 별도의 Repository 클래스 필요
 ```java
-//PublicGroupRepository.class
+//UserInfoRepository.class
 @LocalCacheable
-public PublicGroupInfo getPublicGroupInfo(String ownerId) {
-	return shareInvoker.getPublicGroupInfo(ownerId);
+public UserInfo getUserInfo(String userId) {
+	return userInvoker.getUserInfo(userId);
 }
 
-//WmLogAppender.class
+//UserInfoBo.class
 @Autowired
-private PublicGroupRepository publicGroupRepository;
+private UserInfoRepository userInfoRepository;
 
-private String getPublicGroupHistoryLog(String ownerId) {
+private String getUserInfo(String userId) {
 	...
-	PublicGroupInfo publicGroupInfo = publicGroupRepository.getPublicGroupInfo(ownerId);  
-	int domainId = publicGroupInfo.getDomainId();
-	int tenantId = publicGroupInfo.getTenantId();
+	UserInfo userInfo = userInfoRepository.getUserInfo(userId);  
+	String userName = userInfo.getUserName();
+	int userAge = userInfo.getUserAge();
 	...
 }
 ```
 * Proxy 객체를 사용하는 Srping AOP 대신, AspectJ AOP 를 사용하여, Compile time weaving 을 통해 private method 에 localcahing 적용
 ```java
-//WmLogAppender.class
+//UserInfoBo.class
 @Autowired
-private String getPublicGroupHistoryLog(String ownerId) {
+private String getUserInfo(String ownerId) {
 	...
-	PublicGroupInfo publicGroupInfo = getPublicGroupInfo(ownerId);  
-	int domainId = publicGroupInfo.getDomainId();
-	int tenantId = publicGroupInfo.getTenantId();
+	UserInfo userInfo = getUserInfo(userId);  
+   	String userName = userInfo.getUserName();
+   	int userAge = userInfo.getUserAge();
 	...
 }
 
 @LocalCacheable
-private PublicGroupInfo getPublicGroupInfo(String ownerId) {
-	return shareInvoker.getPublicGroupInfo(ownerId);
+private UserInfo getUserInfo(String userId) {
+	return userInvoker.getUserInfo(userId);
 }
 ```
 
 3. 캐시데이터에 캐시 만료 시간 적용 불가능
 ```java
-//BlockExtensionRepository.java
-public List<String> get(final int domainId) {
+public List<String> get(final int userId) {
 	// local cache 조회
-	Map<String, Object> cacheValue = getCacheValue(String.valueOf(domainId));
+	Map<String, Object> cacheValue = getCacheValue(String.valueOf(userId));
 	if (MapUtils.isNotEmpty(cacheValue)) {
 		Date curDate = new Date();
 		Date createDate = (Date)cacheValue.get(KEY_CREATETIME);
@@ -241,8 +205,8 @@ public List<String> get(final int domainId) {
 * 어노테이션 파라미터로 만료시간 설정할 수 있는 기능 제공
 ```java
 @LocalCacheable(expireTime = 15000L)
-private PublicGroupInfo getPublicGroupInfo(String ownerId) {
-	return shareInvoker.getPublicGroupInfo(ownerId);
+private UserInfo getUserInfo(String userId) {
+	return userInvoker.getUserInfo(userId);
 }
 ``` 
 
