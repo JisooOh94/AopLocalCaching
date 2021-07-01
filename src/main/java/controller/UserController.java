@@ -1,6 +1,6 @@
 package controller;
 
-import java.util.List;
+import static view.ViewNameSpace.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,8 +23,37 @@ public class UserController {
 
 	@GetMapping("/info")
 	public String getUserInfo(@RequestParam String userId, ModelMap model) {
-		List<UserInfo> userInfoList = userInfoBo.getUserInfo(userId);
-		model.addAttribute("userInfoList", userInfoList);
-		return "userInfo";
+		String userName = userInfoBo.getUserName(userId);
+		int userAge = userInfoBo.getUserAge(userId);
+		int userNo = userInfoBo.getUserNo(userId);
+
+		UserInfo userInfo = new UserInfo(userNo, userId, userAge, userName);
+		model.addAttribute("key", "UserInfo");
+		model.addAttribute("value", userInfo);
+		return USER_INFO.getViewName();
+	}
+
+	@GetMapping("/name")
+	public String getUserName(@RequestParam String userId, ModelMap model) {
+		String userName = userInfoBo.getUserName(userId);
+		model.addAttribute("key", "UserName");
+		model.addAttribute("value", userName);
+		return USER_INFO.getViewName();
+	}
+
+	@GetMapping("/age")
+	public String getUserAge(@RequestParam String userId, ModelMap model) {
+		int userAge = userInfoBo.getUserAge(userId);
+		model.addAttribute("key", "UserAge");
+		model.addAttribute("value", userAge);
+		return USER_INFO.getViewName();
+	}
+
+	@GetMapping("/no")
+	public String getUserNo(@RequestParam String userId, ModelMap model) {
+		int userNo = userInfoBo.getUserNo(userId);
+		model.addAttribute("key", "UserNo");
+		model.addAttribute("value", userNo);
+		return USER_INFO.getViewName();
 	}
 }

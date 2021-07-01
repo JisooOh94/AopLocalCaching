@@ -4,16 +4,20 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import bo.UserInfoBo;
+import cache.LocalCacheSupport;
 import dao.UserInfoDao;
-import repository.impl.*;
+import repository.impl.NamedParameterRepository;
+import repository.impl.SimpleRepository;
 
 @Configuration
+@EnableAspectJAutoProxy
 public class ApplicationContextConfig {
 	private static final String PROPERTIES_PATH = "config.properties";
 	private static final String DDL_PATH = "classpath:sql\\schema.sql";
@@ -60,5 +64,11 @@ public class ApplicationContextConfig {
 	@Bean
 	public NamedParameterRepository namedParameterRepository() {
 		return new NamedParameterRepository(jdbcTemplate());
+	}
+
+	//Cache===================================================================================================
+	@Bean
+	public LocalCacheSupport localCacheSupport() {
+		return new LocalCacheSupport();
 	}
 }

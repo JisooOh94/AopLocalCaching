@@ -1,6 +1,6 @@
 package config;
 
-import static constants.CommonConstants.*;
+import static util.constants.CommonConstants.*;
 
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
