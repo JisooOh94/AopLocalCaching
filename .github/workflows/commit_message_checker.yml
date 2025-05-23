@@ -1,6 +1,11 @@
 name: 'Commit Message Check'
 on:
   pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
     branches:
       - '*'
 
@@ -17,4 +22,13 @@ jobs:
           excludeDescription: 'true' # optional: this excludes the description body of a pull request
           excludeTitle: 'true' # optional: this excludes the title of a pull request
           checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
+      - name: Check PR Title Format
+        uses: gsactions/commit-message-checker@v2
+        with:
+          pattern: '\[(feat|fix|docs|refactor|test)\] .{1,50}'
+          error: 'Invalid PR title format.'
+          excludeDescription: 'true' # optional: this excludes the description body of a pull request
+          excludeTitle: 'false' # optional: this excludes the title of a pull request
+          checkAllCommitMessages: 'false' # optional: this checks all commits associated with a pull request
           accessToken: ${{ secrets.GITHUB_TOKEN }} # github access token is only required if checkAllCommitMessages is true
