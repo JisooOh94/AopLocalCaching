@@ -36,6 +36,11 @@ public class TestController {
 		return "index";
 	}
 
+	@GetMapping("/env")
+	public String getEnv() {
+		return env;
+	}
+
 	@GetMapping("/property/injection")
 	public String propertyInjection() {
 		System.out.println(env);
