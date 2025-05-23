@@ -7,7 +7,7 @@ on:
 jobs:
   check-commit-message:
     name: Check Commit Message
-    runs-on: [ self-hosted ]
+    runs-on: ubuntu-latest
     steps:
       - name: Check Commit Message Format
         uses: gsactions/commit-message-checker@v2
